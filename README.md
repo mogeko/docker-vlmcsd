@@ -26,6 +26,6 @@ docker logs vlmcsd
 
 ## Sources
 
-<https://forums.mydigitallife.info/threads/50234-Emulated-KMS-Servers-on-non-Windows-platforms>
+[https://forums.mydigitallife.info/threads/50234-Emulated-KMS-Servers-on-non-Windows-platforms](https://forums.mydigitallife.info/threads/50234-Emulated-KMS-Servers-on-non-Windows-platforms)
 
-<https://github.com/Wind4/vlmcsd>
+[https://github.com/Wind4/vlmcsd](https://github.com/Wind4/vlmcsd)

@@ -1,20 +1,17 @@
 FROM alpine:latest
 
-ENV VERSION svn
-
 RUN apk update \
     && apk upgrade \
-    && apk add --no-cache build-base gcc abuild binutils cmake \
+    && apk add --no-cache build-base gcc abuild binutils cmake git \
     && cd / \
-    && wget https://github.com/Wind4/vlmcsd/archive/"$VERSION".tar.gz \
-    && tar xzf "$VERSION".tar.gz \
-    && cd vlmcsd-"$VERSION" \
+    && git clone https://github.com/Wind4/vlmcsd.git vlmcsd-git \
+    && cd vlmcsd-git \
     && make \
     && chmod +x bin/vlmcsd \
     && mv bin/vlmcsd / \
     && cd / \
-    && apk del build-base gcc abuild binutils cmake \
-    && rm -rf /vlmcsd-"$VERSION"  \
+    && apk del build-base gcc abuild binutils cmake git \
+    && rm -rf /vlmcsd-git  \
     && rm -rf /var/cache/apk/* \
     && /vlmcsd -V
 

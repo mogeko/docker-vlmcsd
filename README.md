@@ -1,6 +1,6 @@
 # docker-vlmcsd
 
-[![Build Status](https://img.shields.io/docker/cloud/build/mogeko/vlmcsd.svg?label=Docker&maxAge=600)](https://hub.docker.com/r/mogeko/vlmcsd)
+![Build](https://github.com/Mogeko/docker-vlmcsd/workflows/Publish%20Docker%20Container/badge.svg)
 
 A docker image running vlmcsd
 

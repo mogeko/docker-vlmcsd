@@ -46,14 +46,29 @@ jobs:
         run: |
           IMAGE_ID=${{secrets.DOCKER_USERNAME}}/$IMAGE_NAME
           VERSION=`curl https://github.com/Wind4/vlmcsd/tags | grep '<a href="/Wind4/vlmcsd/releases/tag/' | cut -d '"' -f 2 | cut -d '/' -f 6 | head -1`
-
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-
-          docker tag image $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          CHECK_VERSION=`curl -L https://mogeko.github.io/docker-vlmcsd/index.json | grep version | cut -d '"' -f 8`
+          if [ "$VERSION" != "$CHECK_VERSION" ]; then
+            echo IMAGE_ID=$IMAGE_ID
+            echo VERSION=$VERSION
+            docker tag image $IMAGE_ID:$VERSION
+            docker push $IMAGE_ID:$VERSION
+          fi
+          mkdir publish && cd publish
+          echo "{\"date\":\"`date "+%FT%T%:z"`\",\"version\":\"$VERSION\"}" > index.json
       
       - name: Departure update
         run: |
           echo '{"soure_type": "Branch", "source_name": "master"}' > update.json
           curl -H 'Content-Type: application/json' --data @update.json -X POST ${{secrets.BUILD_WEBHOOK}}
+      
+
+      - name: Update Version Info
+        uses: Mogeko/git-push@master
+        with:
+          GH_EMAIL: zhengjunyi@live.com
+          GH_USERNAME: Mogeko
+          GH_REPO: github.com/Mogeko/docker-vlmcsd
+          GH_BRANCH: gh-pages
+          GH_TOKEN: ${{ secrets.BUILD_TOKEN }}
+          WORK_DIR: "publish"
+          

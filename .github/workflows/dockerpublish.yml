@@ -14,10 +14,9 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
-
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Run tests
         run: |
           if [ -f docker-compose.test.yml ]; then
@@ -27,21 +26,17 @@ jobs:
             docker build . --file Dockerfile
           fi
 
-  push:
+  push-image:
     needs: test
-
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'schedule'
-
     steps:
-      - uses: actions/checkout@v2
-
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Build image
         run: docker build . --file Dockerfile --tag image
-
       - name: Log into registry
         run: echo "${{secrets.DOCKER_PASSWORD}}" | docker login -u "${{secrets.DOCKER_USERNAME}}" --password-stdin
-
       - name: Push image
         run: |
           IMAGE_ID=${{secrets.DOCKER_USERNAME}}/$IMAGE_NAME
@@ -53,22 +48,41 @@ jobs:
             docker tag image $IMAGE_ID:$VERSION
             docker push $IMAGE_ID:$VERSION
           fi
-          mkdir publish && cd publish
-          echo "{\"date\":\"`date "+%FT%T%:z"`\",\"version\":\"$VERSION\"}" > index.json
-      
+      - name: Update Version Info
+        run: echo "{\"date\":\"`date "+%FT%T%:z"`\",\"version\":\"$VERSION\"}" > index.json
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: version
+          path: index.json
       - name: Departure update
         run: |
           echo '{"soure_type": "Branch", "source_name": "master"}' > update.json
           curl -H 'Content-Type: application/json' --data @update.json -X POST ${{secrets.BUILD_WEBHOOK}}
-      
 
-      - name: Update Version Info
-        uses: Mogeko/git-push@master
-        with:
-          GH_EMAIL: zhengjunyi@live.com
-          GH_USERNAME: Mogeko
-          GH_REPO: github.com/Mogeko/docker-vlmcsd
-          GH_BRANCH: gh-pages
-          GH_TOKEN: ${{ secrets.BUILD_TOKEN }}
-          WORK_DIR: "publish"
-          
+  update-version-info:
+    needs: push-image
+    runs-on: ubuntu-latest
+    container:
+      image: alpine/git
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: version
+    - name: Setup git
+      run: |
+        git config --global user.name 'Mogeko'
+        git config --global user.email 'zhengjunyi@live.com'
+    - name: Deploy to GitHub
+      run: |
+        git init && git add .
+        for try in $(seq 10); do
+          git commit -m "Build By GitHub Actions on $(date "+%Y-%m-%d %T")"
+          if git push -f "https://${{ secrets.BUILD_TOKEN }}@github.com/Mogeko/docker-vlmcsd" master:gh-pages; then
+            exit 0
+          else
+            sleep $(shuf -i 3-10 -n 1)
+          fi
+        done
+        exit 1

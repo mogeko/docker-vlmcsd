@@ -48,8 +48,7 @@ jobs:
             docker tag image $IMAGE_ID:$VERSION
             docker push $IMAGE_ID:$VERSION
           fi
-      - name: Update Version Info
-        run: echo "{\"date\":\"`date "+%FT%T%:z"`\",\"version\":\"$VERSION\"}" > index.json
+          echo "{\"date\":\"`date "+%FT%T%:z"`\",\"version\":\"$VERSION\"}" > index.json
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:

@@ -37,7 +37,7 @@ jobs:
       - name: Run
         run: |
           tar -xzf .devcontainer/bin.tar.gz -C .
-          make run CHECKER=./vlmcs
+          make run CHECKER=./vlmcs PORT=${RANDOM}
 
   meta:
     runs-on: ubuntu-latest

@@ -1,9 +1,6 @@
 name: update-bot
 
 on:
-  push:
-    branches:
-      - master
   schedule:
     - cron: '30 23 * * *'
 
@@ -11,19 +8,25 @@ jobs:
   check:
     runs-on: ubuntu-latest
     outputs:
+      old_ver: ${{ steps.check_ver.outputs.old_ver }}
       new_ver: ${{ steps.check_ver.outputs.new_ver }}
     steps:
       - name: Check version
         id: check_ver
         run: |
-          NEW_VER=$(curl -s "${REPO_URL}" | grep -Po "svn\d+" | head -1)
+          get_ver() (curl -s "$@" | grep -Po "svn\d+" | head -1)
+          OLD_VER=$(get_ver ${GHCO_URL})
+          NEW_VER=$(get_ver ${REPO_URL})
+          echo "::set-output name=new_ver::${OLD_VER}"
           echo "::set-output name=new_ver::${NEW_VER}"
         env:
+          GHCR_URL: https://github.com/mogeko/docker-vlmcsd/pkgs/container/vlmcsd
           REPO_URL: https://github.com/Wind4/vlmcsd/releases/latest
 
   build:
     runs-on: ubuntu-latest
     needs: check
+    if: ${{ needs.check.outputs.old_ver != needs.check.outputs.new_ver }}
     permissions:
       packages: write
       contents: read

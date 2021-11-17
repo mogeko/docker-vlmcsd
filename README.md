@@ -9,13 +9,13 @@ A docker image running vlmcsd
 Pull this image:
 
 ```shell
-docker pull mogeko/vlmcsd
+docker pull ghcr.io/mogeko/vlmcsd
 ```
 
 Run with docker cli:
 
 ```shell
-docker run -d --name vlmcsd -p 1688:1688 --restart unless-stopped mogeko/vlmcsd
+docker run -d --name vlmcsd -p 1688:1688 --restart unless-stopped ghcr.io/mogeko/vlmcsd
 ```
 
 Run with [docker-compose]:
@@ -25,7 +25,7 @@ Run with [docker-compose]:
 version: 2.1
 services:
   vlmcsd:
-    image: mogeko/vlmcsd
+    image: ghcr.io/mogeko/vlmcsd
     container_name: vlmcsd
     ports:
       - 1688:1688

@@ -1,12 +1,23 @@
-FROM alpine:latest as builder
-WORKDIR /root
-RUN apk add --no-cache git make build-base && \
-    git clone --branch master --single-branch https://github.com/Wind4/vlmcsd.git && \
-    cd vlmcsd/ && \
-    make
+FROM alpine:3 as builder
 
-FROM alpine:latest
-WORKDIR /root/
-COPY --from=builder /root/vlmcsd/bin/vlmcsd /usr/bin/vlmcsd
+ARG VERSION
+
+RUN apk add --no-cache build-base clang tar
+
+WORKDIR /workspace
+
+ADD https://github.com/Wind4/vlmcsd/archive/refs/tags/${VERSION}.tar.gz /workspace
+
+RUN tar -zxf ${VERSION}.tar.gz -C . \
+    && mv vlmcsd-${VERSION}/* . \
+    && CC=clang make
+
+FROM alpine:3
+
+COPY --from=builder /workspace/bin/vlmcsd /usr/bin/vlmcsd
+
 EXPOSE 1688/tcp
-CMD [ "/usr/bin/vlmcsd", "-D", "-d" ]
+
+ENTRYPOINT [ "/usr/bin/vlmcsd" ]
+
+CMD [ "-D", "-d", "-e" ]

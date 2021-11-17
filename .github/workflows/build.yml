@@ -25,6 +25,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      
+      - name: Build
+        run: make build
+      
+      - name: Run
+        run: |
+          tar -xzf .devcontainer/bin.tar.gz -C .
+          make run CHECKER=./vlmcs
+
+  meta:
+    runs-on: ubuntu-latest
+    needs: check
     permissions:
       packages: write
       contents: read
@@ -46,6 +63,7 @@ jobs:
             type=schedule,pattern={{date 'YYYYMMDD'}}
             type=raw,${{ needs.check.outputs.new_ver }}
             type=raw,latest
+
       - name: Save status
         run: echo ${{ toJSON(steps.meta.outputs.json) }} > ${{ github.workspace }}/status.json
 

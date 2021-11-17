@@ -1,4 +1,5 @@
 CMD     = /usr/bin/docker
+CHECKER = /usr/bin/vlmcs
 IMAGER  = mogeko/vlmcsd
 VERSION = svn1113
 
@@ -11,8 +12,7 @@ build:
 
 run: id := $(shell $(CMD) run -d -p 1688:1688 $(IMAGER))
 run:
-	@env vlmcs
-	@$(CMD) rm -f $(id)
+	@$(CHECKER) && $(CMD) rm -f $(id)
 
 help: id := $(shell head -200 /dev/urandom | cksum | cut -f1 -d " ")
 help:

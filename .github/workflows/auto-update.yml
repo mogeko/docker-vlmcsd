@@ -75,7 +75,7 @@ jobs:
         run: echo ${{ toJSON(steps.build.outputs.metadata) }} > ${{ github.workspace }}/meta.json
 
       - name: Update metadata
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: metadata
           path: ${{ github.workspace }}/meta.json

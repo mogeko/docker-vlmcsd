@@ -68,7 +68,7 @@ jobs:
         run: echo ${{ toJSON(steps.meta.outputs.json) }} > ${{ github.workspace }}/status.json
 
       - name: Update status
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: status
           path: ${{ github.workspace }}/status.json

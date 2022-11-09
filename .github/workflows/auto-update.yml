@@ -3,30 +3,26 @@ name: update-bot
 on:
   schedule:
     - cron: "30 23 * * *"
+  workflow_dispatch:
 
 jobs:
   check:
     runs-on: ubuntu-latest
     outputs:
-      old_ver: ${{ steps.check_ver.outputs.old_ver }}
-      new_ver: ${{ steps.check_ver.outputs.new_ver }}
+      is_update: ${{ steps.check_ver.outputs.is_update }}
+      stable_ver: ${{ steps.check_ver.outputs.stable_ver }}
+      docker_tags: ${{ steps.check_ver.outputs.docker_tags }}
     steps:
       - name: Check version
         id: check_ver
-        run: |
-          get_ver() (curl -s "$@" | grep -Po "svn\d+" | head -1)
-          OLD_VER=$(get_ver ${GHCO_URL})
-          NEW_VER=$(get_ver ${REPO_URL})
-          echo "::set-output name=new_ver::${OLD_VER}"
-          echo "::set-output name=new_ver::${NEW_VER}"
-        env:
-          GHCR_URL: https://github.com/mogeko/docker-vlmcsd/pkgs/container/vlmcsd
-          REPO_URL: https://github.com/Wind4/vlmcsd/releases/latest
+        uses: mogeko/latest-version@v1.1.0
+        with:
+          repo: Wind4/vlmcsd
 
   build:
     runs-on: ubuntu-latest
     needs: check
-    if: ${{ needs.check.outputs.old_ver != needs.check.outputs.new_ver }}
+    if: needs.check.outputs.is_update == 'true'
     permissions:
       packages: write
       contents: read
@@ -52,10 +48,8 @@ jobs:
             ${{ github.repository_owner }}/vlmcsd
             ghcr.io/${{ github.repository_owner }}/vlmcsd
           tags: |
-            type=edge
             type=schedule,pattern={{date 'YYYYMMDD'}}
-            type=raw,${{ needs.check.outputs.new_ver }}
-            type=raw,latest
+            ${{ needs.check.outputs.docker_tags }}
       - name: Build and push Docker image
         id: build
         uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
@@ -65,7 +59,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VERSION=${{ needs.check.outputs.new_ver }}
+            VERSION=${{ needs.check.outputs.stable_ver }}
       - name: Save metadata
         run: echo ${{ toJSON(steps.build.outputs.metadata) }} > ${{ github.workspace }}/meta.json
       - name: Update metadata

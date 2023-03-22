@@ -1,24 +1,24 @@
-CMD     = /usr/bin/docker
-CHECKER = /usr/bin/vlmcs
-IMAGER  = mogeko/vlmcsd
-VERSION = svn1113
-PORT    = 1688
+VERSION := $(shell $(PWD)/scripts/version.sh)
+OBJ_DIR := $(PWD)/vlmcsd-$(VERSION)
+CC      := /usr/bin/clang
 
-.PHONY: all build run test
+.PHONY: all build clean buildah
 
-all: build run
+all: build
 
-build:
-	@$(CMD) build . --tag $(IMAGER) --build-arg VERSION=$(VERSION)
+$(OBJ_DIR):
+	@git clone --depth 1 -b $(VERSION) https://github.com/Wind4/vlmcsd.git $@
 
-run: id := $(shell $(CMD) run -d -p $(PORT):1688 $(IMAGER))
-run:
-	@$(CHECKER) 127.0.0.1:$(PORT)
-	@$(CMD) rm -f $(id)
+build: $(OBJ_DIR)
+	@CC=$(CC) $(MAKE) -C $(OBJ_DIR) -j$(shell nproc)
 
-help: id := $(shell head -200 /dev/urandom | cksum | cut -f1 -d " ")
-help:
-	@-$(CMD) run -it --name $(id) $(IMAGER) -h
-	@$(CMD) rm -f $(id)
+clean: $(OBJ_DIR)
+	@$(RM) -rf $(OBJ_DIR)
 
-test: run
+UNAME_S := $(shell uname -s)
+buildah: build
+ifeq ($(UNAME_S),Linux)
+	@buildah unshare ./scripts/build.sh $(OBJ_DIR)
+else
+	@echo "This target is only available on Linux"
+endif

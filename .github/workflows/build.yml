@@ -2,31 +2,15 @@ name: Build Container
 
 on:
   push:
+    branches-ignore: [master]
   pull_request:
     branches: [master]
   workflow_dispatch:
-
-permissions:
-  contents: read
-  packages: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3.1.0
-      - uses: actions/checkout@v3.1.0
-        with:
-          repository: Wind4/vlmcsd
-          path: vlmcsd-source
       - name: Build container
         run: make buildah
-      - name: Push To Registry
-        uses: redhat-actions/push-to-registry@v2.7
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        with:
-          image: vlmcsd
-          tags: latest
-          registry: ghcr.io/${{ github.repository_owner }} docker.io/${{ github.repository_owner }}
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}

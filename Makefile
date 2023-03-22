@@ -1,7 +1,7 @@
 OBJ_DIR := $(PWD)/vlmcsd-source
 CC      := /usr/bin/clang
 
-.PHONY: all build clean buildah
+.PHONY: all compile clean buildah
 
 all: compile
 

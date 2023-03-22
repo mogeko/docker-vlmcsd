@@ -60,9 +60,11 @@ jobs:
           path: vlmcsd-source
           ref: ${{ needs.check.outputs.stable_ver }}
       - name: Build container
-        run: make buildah
-        env:
-          IMAGE_NAME: ${{ github.repository_owner }}/vlmcsd
+        run: |
+          make buildah
+          for t in ${DOCKER_METADATA_OUTPUT_TAGS}; do
+            buildah tag vlmcsd $t
+          done
       - name: Push To Registry
         uses: redhat-actions/push-to-registry@v2.7
         with:

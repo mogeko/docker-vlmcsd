@@ -1,5 +1,6 @@
-OBJ_DIR := $(PWD)/vlmcsd-source
-CC      := /usr/bin/clang
+OBJ_DIR    := $(PWD)/vlmcsd-source
+CC         := /usr/bin/clang
+IMAGE_NAME := vlmcsd
 
 .PHONY: all compile clean buildah
 
@@ -27,7 +28,7 @@ buildah: compile
 	@buildah config --port 1688 $(ctr)
 	@buildah config --entrypoint '["/usr/bin/vlmcsd"]' $(ctr)
 	@buildah config --cmd '["-D", "-d", "-e" ]' $(ctr)
-	@buildah commit --format docker $(ctr) vlmcsd
+	@buildah commit --format docker $(ctr) $(IMAGE_NAME)
 else
 buildah:
 	@echo "This target is only available on Linux"

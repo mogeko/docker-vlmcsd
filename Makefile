@@ -1,4 +1,4 @@
-VERSION := $(shell $(PWD)/scripts/version.sh)
+VERSION := $(shell curl -sSL https://api.github.com/repos/Wind4/vlmcsd/tags | jq -r '.[0].name')
 OBJ_DIR := $(PWD)/vlmcsd-$(VERSION)
 CC      := /usr/bin/clang
 
@@ -16,9 +16,16 @@ clean: $(OBJ_DIR)
 	@$(RM) -rf $(OBJ_DIR)
 
 UNAME_S := $(shell uname -s)
-buildah: build
 ifeq ($(UNAME_S),Linux)
-	@buildah unshare ./scripts/build.sh $(OBJ_DIR)
+buildah: ctr := $(shell buildah from gcr.io/distroless/base-nossl-debian11:nonroot)
+buildah: build
+	@buildah config --label maintainer="Zheng Junyi <zhengjunyi@live.comn>" $(ctr)
+	@buildah copy --chmod 755 --chown 65532:65532 $(ctr) $(OBJ_DIR)/bin/vlmcsd /usr/bin/vlmcsd
+	@buildah config --port 1688 $(ctr)
+	@buildah config --entrypoint '["/usr/bin/vlmcsd"]' $(ctr)
+	@buildah config --cmd '["-D", "-d", "-e" ]' $(ctr)
+	@buildah commit --format docker $(ctr) vlmcsd
 else
+buildah:
 	@echo "This target is only available on Linux"
 endif

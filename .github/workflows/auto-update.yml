@@ -48,6 +48,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4.3.0
         with:
+          images: |
+            docker.io/${{ github.repository_owner }}/vlmcsd
+            ghcr.io/${{ github.repository_owner }}/vlmcsd
           tags: |
             type=schedule,pattern={{date 'YYYYMMDD'}}
             ${{ needs.check.outputs.docker_tags }}

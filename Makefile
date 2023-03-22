@@ -1,5 +1,5 @@
 VERSION := $(shell curl -sSL https://api.github.com/repos/Wind4/vlmcsd/tags | jq -r '.[0].name')
-OBJ_DIR := $(PWD)/vlmcsd-$(VERSION)
+OBJ_DIR := $(PWD)/vlmcsd-source
 CC      := /usr/bin/clang
 
 .PHONY: all build clean buildah
@@ -20,7 +20,7 @@ ifeq ($(UNAME_S),Linux)
 buildah: ctr := $(shell buildah from gcr.io/distroless/base-nossl-debian11:nonroot)
 buildah: build
 	@buildah config --label maintainer="Zheng Junyi <zhengjunyi@live.comn>" $(ctr)
-	@buildah copy --chmod 755 --chown 65532:65532 $(ctr) $(OBJ_DIR)/bin/vlmcsd /usr/bin/vlmcsd
+	@buildah copy --chmod 755 $(ctr) $(OBJ_DIR)/bin/vlmcsd /usr/bin/vlmcsd
 	@buildah config --port 1688 $(ctr)
 	@buildah config --entrypoint '["/usr/bin/vlmcsd"]' $(ctr)
 	@buildah config --cmd '["-D", "-d", "-e" ]' $(ctr)

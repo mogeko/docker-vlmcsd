@@ -4,7 +4,7 @@
 
 A rootless container running [vlmcsd](https://github.com/Wind4/vlmcsd).
 
-**Since March 2023, vlmcsd images has been upgraded to a `rootless` container based on ["Distroless" image](https://github.com/GoogleContainerTools/distroless) and compiled with [Buildah](https://buildah.io).** [learn more](#about-distroless-images-and-buildah).
+**Since March 2023, vlmcsd images has been upgraded to a `rootless` container, it based on ["Distroless" image](https://github.com/GoogleContainerTools/distroless) and uses [Buildah](https://buildah.io) as a container compilation engine.** [Why do we use them?](#about-distroless-images-and-buildah).
 
 ## Usage
 
@@ -56,7 +56,7 @@ Compared with the traditional complete [Debian](https://hub.docker.com/_/debian)
 
 As for [Buildah](https://buildah.io). It is a container mirror compilation engine launched by Red Hat. Its biggest selling point is that it allows you to **create a container images in a completely unprivileged environment, that is _"rootless"_**. With the help of Buildah, we were able to **put the entire life cycle of the container's compilation and operation in the user namespace**. So as to protect our digital security.
 
-## Sources
+## Source code
 
 <https://forums.mydigitallife.info/threads/50234-Emulated-KMS-Servers-on-non-Windows-platforms>
 

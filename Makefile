@@ -2,7 +2,7 @@ IMAGE_NAME ?= vlmcsd
 IMAGE_PORT ?= 1688
 RUNER      ?= docker
 
-.PHONY: all build buildah run test
+.PHONY: all build help run test
 
 all: build
 

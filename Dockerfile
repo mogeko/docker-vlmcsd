@@ -15,6 +15,12 @@ RUN git clone --depth 1 --branch ${VERSION} \
 
 FROM gcr.io/distroless/base-nossl-debian11:nonroot
 
+LABEL org.opencontainers.image.title="KMS Emulator (vlmcsd) in Container"
+LABEL org.opencontainers.image.description="A rootless container running vlmcsd"
+LABEL org.opencontainers.image.author="Zheng Junyi <zhengjunyi@live.comn>"
+LABEL org.opencontainers.image.source="https://github.com/mogeko/docker-vlmcsd"
+LABEL org.opencontainers.image.licenses="MIT"
+
 COPY --from=builder /workspace/bin/vlmcsd /usr/bin/vlmcsd
 
 EXPOSE 1688/tcp

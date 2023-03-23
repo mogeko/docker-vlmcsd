@@ -5,10 +5,6 @@ on:
     - cron: "30 23 * * *"
   workflow_dispatch:
 
-permissions:
-  contents: read
-  packages: write
-
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -19,55 +15,55 @@ jobs:
     steps:
       - name: Check version
         id: check_ver
-        uses: mogeko/latest-version@v1.1.2
+        uses: mogeko/latest-version@v1.1.0
         with:
           repo: Wind4/vlmcsd
 
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: check
     if: needs.check.outputs.is_update == 'true'
     permissions:
       packages: write
       contents: read
     steps:
-      - uses: actions/checkout@v3.1.0
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
       - name: Log in to Docker Hub
-        uses: redhat-actions/podman-login@v1
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
-          registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Log in to GitHub Container registry
-        uses: redhat-actions/podman-login@v1
+      - name: Log in to the Container registry
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4.3.0
+        uses: docker/metadata-action@57396166ad8aefe6098280995947635806a0e6ea
         with:
           images: |
-            docker.io/${{ github.repository_owner }}/vlmcsd
+            ${{ github.repository_owner }}/vlmcsd
             ghcr.io/${{ github.repository_owner }}/vlmcsd
           tags: |
             type=schedule,pattern={{date 'YYYYMMDD'}}
             ${{ needs.check.outputs.docker_tags }}
-      - uses: actions/checkout@v3.1.0
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
         with:
-          repository: Wind4/vlmcsd
-          path: vlmcsd-source
-          ref: ${{ needs.check.outputs.stable_ver }}
-      - name: Build container
-        run: |
-          make buildah
-          for t in ${DOCKER_METADATA_OUTPUT_TAGS}; do
-            buildah tag vlmcsd $t
-          done
-      - name: Push To Registry
-        uses: redhat-actions/push-to-registry@v2.7
-        with:
-          image: ${{ github.repository_owner }}/vlmcsd
+          context: .
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
-          registry: ghcr.io docker.io
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ needs.check.outputs.stable_ver }}
+      - name: Save metadata
+        run: echo ${{ toJSON(steps.build.outputs.metadata) }} > ${{ github.workspace }}/meta.json
+      - name: Update metadata
+        uses: actions/upload-artifact@v3
+        with:
+          name: metadata
+          path: ${{ github.workspace }}/meta.json

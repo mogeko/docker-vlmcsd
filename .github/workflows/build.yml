@@ -2,15 +2,62 @@ name: Build Container
 
 on:
   push:
-    branches-ignore: [master]
+    branches-ignore:
+      - master
   pull_request:
-    branches: [master]
-  workflow_dispatch:
+    branches:
+      - master
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      new_ver: ${{ steps.check_ver.outputs.new_ver }}
     steps:
-      - uses: actions/checkout@v3.1.0
-      - name: Build container
-        run: make buildah
+      - name: Check version
+        id: check_ver
+        run: |
+          NEW_VER=$(curl -s "${REPO_URL}" | grep -Po "svn\d+" | head -1)
+          echo "::set-output name=new_ver::${NEW_VER}"
+        env:
+          REPO_URL: https://github.com/Wind4/vlmcsd/releases/latest
+
+  build:
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+      - name: Build
+        run: make build
+
+  meta:
+    runs-on: ubuntu-latest
+    needs: check
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@57396166ad8aefe6098280995947635806a0e6ea
+        with:
+          images: |
+            ${{ github.repository_owner }}/vlmcsd
+            ghcr.io/${{ github.repository_owner }}/vlmcsd
+          tags: |
+            type=edge
+            type=schedule,pattern={{date 'YYYYMMDD'}}
+            type=raw,${{ needs.check.outputs.new_ver }}
+            type=raw,latest
+      - name: Save status
+        run: echo ${{ toJSON(steps.meta.outputs.json) }} > ${{ github.workspace }}/status.json
+      - name: Update status
+        uses: actions/upload-artifact@v3
+        with:
+          name: status
+          path: ${{ github.workspace }}/status.json

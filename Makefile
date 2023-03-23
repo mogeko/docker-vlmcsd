@@ -16,7 +16,11 @@ else
 endif
 
 help:
+ifneq ($(shell docker images $(IMAGE_NAME) --format "{{.ID}}"),)
 	@-$(RUNER) run -it --rm $(IMAGE_NAME) -h
+else
+	@$(MAKE) build && $(MAKE) help
+endif
 
 CHECKER ?= /usr/bin/env vlmcs
 run: id := $(shell head -200 /dev/urandom | cksum | cut -f1 -d " ")

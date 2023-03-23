@@ -1,31 +1,32 @@
 IMAGE_NAME ?= vlmcsd
 IMAGE_PORT ?= 1688
-CMD        ?= docker
+RUNER      ?= docker
 
-.PHONY: all build buildah run test
+.PHONY: all build help run test
 
 all: build
 
 build: api     := https://api.github.com/repos/Wind4/vlmcsd/tags
 build: version := $(shell curl -sSL $(api) | jq -r '.[0].name')
-build:
-	@$(CMD) build --tag $(IMAGE_NAME) --build-arg VERSION=$(version) .
+build: $(PWD)/Dockerfile
+ifeq ($(wildcard /usr/bin/buildah),)
+	@$(RUNER) build --build-arg VERSION=$(version) -t $(IMAGE_NAME) .
+else
+	@buildah bud --build-arg VERSION=$(version) -t $(IMAGE_NAME) .
+endif
 
 help:
-	@-$(CMD) run -it --rm $(IMAGE_NAME) -h
+ifneq ($(shell docker images $(IMAGE_NAME) --format "{{.ID}}"),)
+	@-$(RUNER) run -it --rm $(IMAGE_NAME) -h
+else
+	@$(MAKE) build && $(MAKE) help
+endif
 
 CHECKER ?= /usr/bin/env vlmcs
 run: id := $(shell head -200 /dev/urandom | cksum | cut -f1 -d " ")
 run: build
-	@$(CMD) run -d --name $(id) -p $(IMAGE_PORT):1688 $(IMAGE_NAME)
+	@$(RUNER) run -d --name $(id) -p $(IMAGE_PORT):1688 $(IMAGE_NAME)
 	@$(CHECKER) 127.0.0.1:$(IMAGE_PORT)
-	@$(CMD) rm -f $(id)
+	@$(RUNER) rm -f $(id)
 
 test: run
-
-buildah:
-ifneq ($(wildcard /usr/bin/buildah),)
-	@CMD=buildah $(MAKE) build
-else
-	$(error "This target requires buildah")
-endif

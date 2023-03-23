@@ -27,43 +27,42 @@ jobs:
       packages: write
       contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3
       - name: Log in to Docker Hub
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        uses: redhat-actions/podman-login@v1
         with:
+          registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Log in to the Container registry
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      - name: Log in to the GitHub Container Registry
+        uses: redhat-actions/podman-login@v1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@57396166ad8aefe6098280995947635806a0e6ea
+        uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ github.repository_owner }}/vlmcsd
-            ghcr.io/${{ github.repository_owner }}/vlmcsd
+            docker.io/${{ secrets.DOCKER_USERNAME }}/vlmcsd
+            ghcr.io/${{ github.actor }}/vlmcsd
           tags: |
             type=schedule,pattern={{date 'YYYYMMDD'}}
             ${{ needs.check.outputs.docker_tags }}
-      - name: Build and push Docker image
-        id: build
-        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
+      - name: Build container with rootless by Buildah
+        uses: redhat-actions/buildah-build@v2
+        id: build-image
         with:
-          context: .
-          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          containerfiles: |
+            ${{ github.workspace }}/Dockerfile
           build-args: |
             VERSION=${{ needs.check.outputs.stable_ver }}
-      - name: Save metadata
-        run: echo ${{ toJSON(steps.build.outputs.metadata) }} > ${{ github.workspace }}/meta.json
-      - name: Update metadata
-        uses: actions/upload-artifact@v3
+          layers: false
+      - name: Push to Container registry
+        uses: redhat-actions/push-to-registry@v2
         with:
-          name: metadata
-          path: ${{ github.workspace }}/meta.json
+          images: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}

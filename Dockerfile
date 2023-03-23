@@ -1,18 +1,19 @@
-FROM alpine:3 as builder
+FROM debian:11 as builder
 
-ARG VERSION
+ARG VERSION=svn1113
 
-RUN apk add --no-cache build-base clang tar
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get -y install \
+        build-essential ca-certificates clang git && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
 
-ADD https://github.com/Wind4/vlmcsd/archive/refs/tags/${VERSION}.tar.gz /workspace
+RUN git clone --depth 1 --branch ${VERSION} \
+        https://github.com/Wind4/vlmcsd.git /workspace && \
+    CC=clang make -j$(nproc)
 
-RUN tar -zxf ${VERSION}.tar.gz -C . \
-    && mv vlmcsd-${VERSION}/* . \
-    && CC=clang make
-
-FROM alpine:3
+FROM gcr.io/distroless/base-nossl-debian11:nonroot
 
 COPY --from=builder /workspace/bin/vlmcsd /usr/bin/vlmcsd
 

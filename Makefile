@@ -1,24 +1,23 @@
-CMD     = /usr/bin/docker
-CHECKER = /usr/bin/vlmcs
-IMAGER  = mogeko/vlmcsd
-VERSION = svn1113
-PORT    = 1688
+IMAGER_NAME  := vlmcsd
+VERSION      := svn1113
+PORT         := 1688
+
+CHECKER := vlmcs
+CMD     := docker
 
 .PHONY: all build run test
 
-all: build run
+all: build
 
 build:
-	@$(CMD) build . --tag $(IMAGER) --build-arg VERSION=$(VERSION)
+	@$(CMD) build . --tag $(IMAGER_NAME) --build-arg VERSION=$(VERSION)
 
-run: id := $(shell $(CMD) run -d -p $(PORT):1688 $(IMAGER))
-run:
+run: id := $(shell $(CMD) run -d -p $(PORT):1688 $(IMAGER_NAME))
+run: build
 	@$(CHECKER) 127.0.0.1:$(PORT)
 	@$(CMD) rm -f $(id)
 
-help: id := $(shell head -200 /dev/urandom | cksum | cut -f1 -d " ")
 help:
-	@-$(CMD) run -it --name $(id) $(IMAGER) -h
-	@$(CMD) rm -f $(id)
+	@-$(CMD) run -it --rm $(IMAGER_NAME) -h
 
 test: run

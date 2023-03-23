@@ -5,10 +5,6 @@ on:
     - cron: "30 23 * * *"
   workflow_dispatch:
 
-permissions:
-  contents: read
-  packages: write
-
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -19,26 +15,26 @@ jobs:
     steps:
       - name: Check version
         id: check_ver
-        uses: mogeko/latest-version@v1.1.2
+        uses: mogeko/latest-version@v1.1.0
         with:
           repo: Wind4/vlmcsd
 
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: check
     if: needs.check.outputs.is_update == 'true'
     permissions:
       packages: write
       contents: read
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3
       - name: Log in to Docker Hub
         uses: redhat-actions/podman-login@v1
         with:
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Log in to GitHub Container registry
+      - name: Log in to the GitHub Container Registry
         uses: redhat-actions/podman-login@v1
         with:
           registry: ghcr.io
@@ -46,28 +42,26 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4.3.0
+        uses: docker/metadata-action@v4
         with:
           images: |
-            docker.io/${{ github.repository_owner }}/vlmcsd
-            ghcr.io/${{ github.repository_owner }}/vlmcsd
+            docker.io/${{ secrets.DOCKER_USERNAME }}/vlmcsd
+            ghcr.io/${{ github.actor }}/vlmcsd
           tags: |
             type=schedule,pattern={{date 'YYYYMMDD'}}
             ${{ needs.check.outputs.docker_tags }}
-      - uses: actions/checkout@v3.1.0
+      - name: Build container with rootless by Buildah
+        uses: redhat-actions/buildah-build@v2
+        id: build-image
         with:
-          repository: Wind4/vlmcsd
-          path: vlmcsd-source
-          ref: ${{ needs.check.outputs.stable_ver }}
-      - name: Build container
-        run: |
-          make buildah
-          for t in ${DOCKER_METADATA_OUTPUT_TAGS}; do
-            buildah tag vlmcsd $t
-          done
-      - name: Push To Registry
-        uses: redhat-actions/push-to-registry@v2.7
-        with:
-          image: ${{ github.repository_owner }}/vlmcsd
           tags: ${{ steps.meta.outputs.tags }}
-          registry: ghcr.io docker.io
+          labels: ${{ steps.meta.outputs.labels }}
+          containerfiles: ./Dockerfile
+          build-args: |
+            VERSION=${{ needs.check.outputs.stable_ver }}
+          layers: false
+      - name: Push to Container registry
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          images: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}

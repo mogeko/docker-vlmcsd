@@ -1,35 +1,31 @@
-OBJ_DIR    := $(PWD)/vlmcsd-source
-CC         := /usr/bin/clang
-IMAGE_NAME := vlmcsd
+IMAGE_NAME ?= vlmcsd
+IMAGE_PORT ?= 1688
+CMD        ?= docker
 
-.PHONY: all compile clean buildah
+.PHONY: all build buildah run test
 
-all: compile
+all: build
 
-$(OBJ_DIR): repository := https://github.com/Wind4/vlmcsd.git
-$(OBJ_DIR): api        := https://api.github.com/repos/Wind4/vlmcsd/tags
-$(OBJ_DIR): version    := $(shell curl -sSL $(api) | jq -r '.[0].name')
-$(OBJ_DIR):
-	@git clone --depth 1 --branch $(version) $(repository) $@
+build: api     := https://api.github.com/repos/Wind4/vlmcsd/tags
+build: version := $(shell curl -sSL $(api) | jq -r '.[0].name')
+build:
+	@$(CMD) build --tag $(IMAGE_NAME) --build-arg VERSION=$(version) .
 
-compile: $(OBJ_DIR) $(OBJ_DIR)/src/vlmcsd.c
-	@CC=$(CC) $(MAKE) -C $(OBJ_DIR) -j$(shell nproc)
+help:
+	@-$(CMD) run -it --rm $(IMAGE_NAME) -h
 
-clean: $(OBJ_DIR)
-	@$(RM) -rf $(OBJ_DIR)
+CHECKER ?= /usr/bin/env vlmcs
+run: id := $(shell head -200 /dev/urandom | cksum | cut -f1 -d " ")
+run: build
+	@$(CMD) run -d --name $(id) -p $(IMAGE_PORT):1688 $(IMAGE_NAME)
+	@$(CHECKER) 127.0.0.1:$(IMAGE_PORT)
+	@$(CMD) rm -f $(id)
 
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Linux)
-buildah: image := gcr.io/distroless/base-nossl-debian11:nonroot
-buildah: ctr   := $(shell buildah from $(image))
-buildah: compile
-	@buildah config --label maintainer="Zheng Junyi <zhengjunyi@live.comn>" $(ctr)
-	@buildah copy --chmod 755 $(ctr) $(OBJ_DIR)/bin/vlmcsd /usr/bin/vlmcsd
-	@buildah config --port 1688 $(ctr)
-	@buildah config --entrypoint '["/usr/bin/vlmcsd"]' $(ctr)
-	@buildah config --cmd '["-D", "-d", "-e" ]' $(ctr)
-	@buildah commit --format docker $(ctr) $(IMAGE_NAME)
-else
+test: run
+
 buildah:
-	@echo "This target is only available on Linux"
+ifneq ($(wildcard /usr/bin/buildah),)
+	@CMD=buildah $(MAKE) build
+else
+	$(error "This target requires buildah")
 endif

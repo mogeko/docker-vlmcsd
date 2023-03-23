@@ -56,8 +56,7 @@ jobs:
         with:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          containerfiles: |
-            ${{ github.workspace }}/Dockerfile
+          containerfiles: ./Dockerfile
           build-args: |
             VERSION=${{ needs.check.outputs.stable_ver }}
           layers: false

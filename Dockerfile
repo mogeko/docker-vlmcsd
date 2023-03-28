@@ -4,14 +4,14 @@ ARG VERSION=svn1113
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y install \
-        build-essential ca-certificates clang git && \
+        build-essential ca-certificates clang && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/source
 
-RUN git clone --depth 1 --branch ${VERSION} \
-        https://github.com/Wind4/vlmcsd.git /opt/source && \
-    CC="clang" make -C /opt/source -j$(nproc)
+ADD https://github.com/Wind4/vlmcsd/archive/${VERSION}.tar.gz /tmp
+RUN tar -xzf /tmp/${VERSION}.tar.gz --strip-components=1 && \
+    CC="clang" make vlmcsd -j$(nproc)
 
 FROM gcr.io/distroless/base-nossl-debian11:nonroot
 

@@ -1,4 +1,4 @@
-FROM docker.io/library/debian:11 as builder
+FROM docker.io/library/debian:12 as builder
 
 ARG VERSION=svn1113
 

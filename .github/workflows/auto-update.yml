@@ -1,8 +1,8 @@
 name: update-bot
 
 on:
-  schedule:
-    - cron: "30 23 * * *"
+#  schedule:
+#    - cron: "30 23 * * *"
   workflow_dispatch:
 
 jobs:
@@ -34,19 +34,23 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Log in to the GitHub Container Registry
-        uses: redhat-actions/podman-login@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Log in to the GitHub Container Registry
+#        uses: redhat-actions/podman-login@v1
+#        with:
+#          registry: ghcr.io
+#          username: ${{ github.actor }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
             docker.io/${{ secrets.DOCKER_USERNAME }}/vlmcsd
-            ghcr.io/${{ github.actor }}/vlmcsd
+#            ghcr.io/${{ github.actor }}/vlmcsd
           tags: |
             type=schedule,pattern={{date 'YYYYMMDD'}}
             ${{ needs.check.outputs.docker_tags }}
@@ -54,6 +58,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         id: build-image
         with:
+          archs: amd64, arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           containerfiles: ./Dockerfile

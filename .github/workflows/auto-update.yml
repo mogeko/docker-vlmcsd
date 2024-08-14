@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Check version
         id: check_ver
-        uses: mogeko/latest-version@v1.1.2
+        uses: mogeko/latest-version@master
         with:
           repo: Wind4/vlmcsd
 

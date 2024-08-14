@@ -54,7 +54,7 @@ jobs:
         uses: docker/setup-qemu-action@v3.2.0
         id: qemu
         with:
-          platforms: amd64,arm64,riscv64
+          platforms: amd64,arm64
       - name: Build container with rootless by Buildah
         uses: redhat-actions/buildah-build@v2.13
         id: build-image

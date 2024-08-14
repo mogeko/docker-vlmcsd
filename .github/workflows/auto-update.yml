@@ -52,16 +52,15 @@ jobs:
             ${{ needs.check.outputs.docker_tags }}
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3.2.0
-        id: qemu
         with:
           platforms: amd64,arm64
       - name: Build container with rootless by Buildah
         uses: redhat-actions/buildah-build@v2.13
         id: build-image
         with:
-          platforms: ${{ steps.qemu.outputs.platforms }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
           containerfiles: ./Dockerfile
           build-args: |
             VERSION=${{ needs.check.outputs.stable_ver }}

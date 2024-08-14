@@ -68,8 +68,8 @@ The code in this project is released under the [MIT License][license].
 
 <!-- badge -->
 
-[ci_icon]: https://github.com/mogeko/docker-vlmcsd/actions/workflows/auto-update.yml/badge.svg
-[ci_link]: https://github.com/mogeko/docker-vlmcsd/actions/workflows/auto-update.yml
+[ci_icon]: https://github.com/mogeko/docker-vlmcsd/actions/workflows/build.yml/badge.svg
+[ci_link]: https://github.com/mogeko/docker-vlmcsd/actions/workflows/build.yml
 [docker_pulls]: https://img.shields.io/docker/pulls/mogeko/vlmcsd?logo=docker
 [image_size]: https://img.shields.io/docker/image-size/mogeko/vlmcsd?logo=docker
 [docker_link]: https://hub.docker.com/r/mogeko/vlmcsd

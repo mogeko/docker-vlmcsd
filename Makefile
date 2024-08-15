@@ -8,11 +8,7 @@ all: build
 build: api     := https://api.github.com/repos/Wind4/vlmcsd/tags
 build: version := $(shell curl -sSL $(api) | jq -r '.[0].name')
 build: $(PWD)/Dockerfile
-ifeq ($(wildcard /usr/bin/buildah),)
 	@$(RUNER) build --build-arg VERSION=$(version) -t $(IMAGE_NAME) .
-else
-	@buildah bud --build-arg VERSION=$(version) -t $(IMAGE_NAME) .
-endif
 
 help:
 ifneq ($(shell docker images $(IMAGE_NAME) --format "{{.ID}}"),)

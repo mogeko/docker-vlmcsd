@@ -1,5 +1,4 @@
 IMAGE_NAME ?= vlmcsd
-IMAGE_PORT ?= 1688
 RUNER      ?= docker
 
 .PHONY: all build help run test
@@ -22,11 +21,10 @@ else
 	@$(MAKE) build && $(MAKE) help
 endif
 
-CHECKER ?= /usr/bin/env vlmcs
 run: id := $(shell head -200 /dev/urandom | cksum | cut -f1 -d " ")
 run: build
-	@$(RUNER) run -d --name $(id) -p $(IMAGE_PORT):1688 $(IMAGE_NAME)
-	@$(CHECKER) 127.0.0.1:$(IMAGE_PORT)
+	@$(RUNER) run -d --name $(id) $(IMAGE_NAME)
+	@$(RUNER) exec $(id) /usr/bin/vlmcs 0.0.0.0:1688
 	@$(RUNER) rm -f $(id)
 
 test: run

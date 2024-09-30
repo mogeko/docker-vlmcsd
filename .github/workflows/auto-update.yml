@@ -27,7 +27,7 @@ jobs:
       packages: write
       contents: read
     steps:
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@v4.2.0
       - name: Log in to Docker Hub
         uses: redhat-actions/podman-login@v1.7
         with:

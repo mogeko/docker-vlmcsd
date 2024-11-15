@@ -12,4 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.1.7
-      - run: make build run
+      - uses: redhat-actions/buildah-build@v2.13
+        with:
+          image: localhost/vlmcsd:latest
+          containerfiles: ./Dockerfile
+      - name: Run and test containers
+        run: |
+          pacman run -d --name vlmcsd localhost/vlmcsd:latest
+          pacman exec vlmcsd /usr/bin/vlmcs 0.0.0.0:1688
+          pacman rm -f vlmcsd

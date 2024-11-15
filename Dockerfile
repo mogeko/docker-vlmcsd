@@ -1,6 +1,6 @@
 FROM docker.io/library/debian:12 AS builder
 
-ENV DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_FRONTEND="noninteractive"
 RUN apt-get update && apt-get -y install \
         build-essential ca-certificates clang && \
     rm -rf /var/lib/apt/lists/*
@@ -12,8 +12,10 @@ COPY ./vlmcsd-*/Makefile /opt/vlmcsd/Makefile
 
 WORKDIR /opt/vlmcsd
 
-ARG CC="clang" VERSION="private\ build"
-RUN CC="${CC}" VLMCSD_VERSION="${VERSION}" make -j$(nproc)
+ARG VERSION="private\ build"
+ARG CC="clang"
+ENV VLMCSD_VERSION="${VERSION}"
+RUN CC="${CC}" make -j$(nproc)
 
 FROM gcr.io/distroless/base-nossl-debian12:nonroot
 

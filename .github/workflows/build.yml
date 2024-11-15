@@ -14,7 +14,8 @@ jobs:
       - uses: actions/checkout@v4.1.7
       - uses: redhat-actions/buildah-build@v2.13
         with:
-          image: localhost/vlmcsd:latest
+          image: localhost/vlmcsd
+          tags: latest
           containerfiles: ./Dockerfile
       - name: Run and test containers
         run: |

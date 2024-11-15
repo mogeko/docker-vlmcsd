@@ -1,33 +1,18 @@
-name: update-bot
+name: Release
 
 on:
-  schedule:
-    - cron: "30 23 * * *"
+  push:
+    tags: ["*"]
   workflow_dispatch:
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    outputs:
-      is_update: ${{ steps.check_ver.outputs.is_update }}
-      stable_ver: ${{ steps.check_ver.outputs.stable_ver }}
-      docker_tags: ${{ steps.check_ver.outputs.docker_tags }}
-    steps:
-      - name: Check version
-        id: check_ver
-        uses: mogeko/latest-version@master
-        with:
-          repo: Wind4/vlmcsd
-
   build:
     runs-on: ubuntu-latest
-    needs: check
-    if: needs.check.outputs.is_update == 'true'
     permissions:
       packages: write
       contents: read
     steps:
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@v4.2.2
       - name: Log in to Docker Hub
         uses: redhat-actions/podman-login@v1.7
         with:
@@ -47,9 +32,6 @@ jobs:
           images: |
             docker.io/${{ secrets.DOCKER_USERNAME }}/vlmcsd
             ghcr.io/${{ github.actor }}/vlmcsd
-          tags: |
-            type=schedule,pattern={{date 'YYYYMMDD'}}
-            ${{ needs.check.outputs.docker_tags }}
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3.2.0
         with:
@@ -58,12 +40,12 @@ jobs:
         uses: redhat-actions/buildah-build@v2.13
         id: build-image
         with:
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
           containerfiles: ./Dockerfile
           build-args: |
-            VERSION=${{ needs.check.outputs.stable_ver }}
+            VLMCSD_VERSION=${{ github.ref_name }}
           layers: false
       - name: Push to Container registry
         uses: redhat-actions/push-to-registry@v2.8

@@ -10,12 +10,10 @@ COPY ./vlmcsd-*/src /opt/vlmcsd/src
 COPY ./vlmcsd-*/GNUmakefile /opt/vlmcsd/GNUmakefile
 COPY ./vlmcsd-*/Makefile /opt/vlmcsd/Makefile
 
-WORKDIR /opt/vlmcsd
-
-ARG VERSION="private\ build"
+ARG VLMCSD_VERSION="private\ build"
 ARG CC="clang"
-ENV VLMCSD_VERSION="${VERSION}"
-RUN CC="${CC}" make -j$(nproc)
+ENV CC="${CC}" VLMCSD_VERSION="${VLMCSD_VERSION}"
+RUN make -C /opt/vlmcsd -j$(nproc)
 
 FROM gcr.io/distroless/base-nossl-debian12:nonroot
 

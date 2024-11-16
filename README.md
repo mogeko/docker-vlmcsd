@@ -2,7 +2,7 @@
 
 [![ci_icon]][ci_link] [![docker_pulls]][docker_link] [![image_size]][docker_link]
 
-A rootless container running [vlmcsd](https://github.com/Wind4/vlmcsd).
+A rootless container running [vlmcsd](https://www.upload.ee/files/11363704/vlmcsd-1113-2020-03-28-Hotbird64.7z.html).
 
 **Since March 2023, vlmcsd images has been upgraded to a `rootless` container, it based on ["Distroless" image](https://github.com/GoogleContainerTools/distroless) and uses [Buildah](https://buildah.io) as a container compilation engine.** [Why do we use them?](#about-distroless-images-and-buildah).
 
@@ -56,11 +56,11 @@ Compared with the traditional complete [Debian](https://hub.docker.com/_/debian)
 
 As for [Buildah](https://buildah.io). It is a container mirror compilation engine launched by Red Hat. Its biggest selling point is that it allows you to **create a container images in a completely unprivileged environment, that is _"rootless"_**. With the help of Buildah, we were able to **put the entire life cycle of the container's compilation and operation in the user namespace**. So as to protect our digital security.
 
-## Source code
+## Upstream source code
 
-<https://forums.mydigitallife.info/threads/50234-Emulated-KMS-Servers-on-non-Windows-platforms>
+<https://forums.mydigitallife.net/threads/emulated-kms-servers-on-non-windows-platforms.50234>
 
-<https://github.com/Wind4/vlmcsd>
+<https://www.upload.ee/files/11363704/vlmcsd-1113-2020-03-28-Hotbird64.7z.html>
 
 ## License
 
@@ -68,8 +68,8 @@ The code in this project is released under the [MIT License][license].
 
 <!-- badge -->
 
-[ci_icon]: https://github.com/mogeko/docker-vlmcsd/actions/workflows/auto-update.yml/badge.svg
-[ci_link]: https://github.com/mogeko/docker-vlmcsd/actions/workflows/auto-update.yml
+[ci_icon]: https://github.com/mogeko/docker-vlmcsd/actions/workflows/build.yml/badge.svg
+[ci_link]: https://github.com/mogeko/docker-vlmcsd/actions/workflows/build.yml
 [docker_pulls]: https://img.shields.io/docker/pulls/mogeko/vlmcsd?logo=docker
 [image_size]: https://img.shields.io/docker/image-size/mogeko/vlmcsd?logo=docker
 [docker_link]: https://hub.docker.com/r/mogeko/vlmcsd

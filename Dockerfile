@@ -24,7 +24,7 @@ LABEL org.opencontainers.image.author="Zheng Junyi <zhengjunyi@live.comn>"
 LABEL org.opencontainers.image.licenses="MIT"
 
 COPY --from=builder /opt/vlmcsd/bin/vlmcsd /usr/bin/vlmcsd
-COPY --from=builder /opt/vlmcsd/etc /etc/vlmcsd
+COPY --from=builder /opt/vlmcsd/etc/vlmcsd.ini /etc/vlmcsd/vlmcsd.ini
 
 EXPOSE 1688/tcp
 

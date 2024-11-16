@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}/vlmcsd.8.pdf
     concurrency:
       group: "pages"
       cancel-in-progress: false
@@ -76,10 +76,11 @@ jobs:
       - run: |
           install -d ./_site && install -t ./_site \
               ./vlmcsd-*/man/vlmcs*.{pdf,html} ./LICENSE ./README.md
+          ls -l ./_site
       - uses: actions/configure-pages@v5.0.0
       - uses: actions/upload-pages-artifact@v3.0.1
         with:
-          path: "_site"
+          path: "./_site"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4.0.5

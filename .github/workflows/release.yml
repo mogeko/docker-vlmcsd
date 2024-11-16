@@ -72,10 +72,11 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4.2.2
-      - run: sudo apt update && sudo apt -y install groff pandoc
-      - run: |
-          make -C ./vlmcsd-* pdfdocs htmldocs
-          pandoc -f markdown ./README.md > index.html
+      - run: sudo apt-get update && sudo apt-get -y install groff
+      - run: make -C ./vlmcsd-* pdfdocs htmldocs
+      - uses: docker://pandoc/core:3.5.0
+        with:
+          args: --from=markdown --output=index.html README.md
       - run: |
           install -d ./_site && install -t ./_site \
               ./vlmcsd-*/man/vlmcs*.{pdf,html} ./LICENSE ./index.html

@@ -34,8 +34,9 @@ jobs:
             docker.io/${{ secrets.DOCKER_USERNAME }}/vlmcsd
             ghcr.io/${{ github.actor }}/vlmcsd
           tags: |
-            type=edge
-            type=sha
+            type=edge,branch=$repo.default_branch
+            type=ref,event=tag
+            type=sha,prefix=sha-,format=short
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3.2.0
         with:
@@ -59,7 +60,7 @@ jobs:
 
   man-page:
     runs-on: ubuntu-latest
-    if: ${{ github.ref_name == 'master' }}
+    if: ${{ github.ref == format('refs/heads/{0}', 'master') }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

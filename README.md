@@ -1,8 +1,8 @@
 # docker-vlmcsd
 
 [![Build](https://github.com/mogeko/docker-vlmcsd/actions/workflows/build.yml/badge.svg)](https://github.com/mogeko/docker-vlmcsd/actions/workflows/build.yml)
-[![Docker Pulls](https://img.shields.io/docker/pulls/mogeko/vlmcsd?logo=docker)](https://hub.docker.com/r/mogeko/vlmcsd)
-[![Docker Image Size](https://img.shields.io/docker/image-size/mogeko/vlmcsd?logo=docker)](https://hub.docker.com/r/mogeko/vlmcsd)
+[![Docker Pulls](https://img.shields.io/docker/pulls/mogeko/vlmcsd?logo=docker)](https://github.com/users/mogeko/packages/container/package/vlmcsd)
+[![Docker Image Size](https://img.shields.io/docker/image-size/mogeko/vlmcsd?logo=docker)](https://github.com/users/mogeko/packages/container/package/vlmcsd)
 
 A rootless container running [vlmcsd](https://mogeko.github.io/docker-vlmcsd/vlmcsd.8.pdf).
 

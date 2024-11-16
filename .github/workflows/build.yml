@@ -1,10 +1,10 @@
-name: Build Container
+name: Build
 
 on:
   push:
-    branches-ignore: [master]
+    branches-ignore: ["master"]
   pull_request:
-    branches: [master]
+    branches: ["master"]
   workflow_dispatch:
 
 jobs:
@@ -14,9 +14,8 @@ jobs:
       - uses: actions/checkout@v4.2.2
       - uses: redhat-actions/buildah-build@v2.13
         with:
-          image: localhost/vlmcsd
-          tags: latest
           containerfiles: ./Dockerfile
+          image: localhost/vlmcsd
       - run: podman run --rm localhost/vlmcsd:latest -V
       - name: Run and test containers
         run: |

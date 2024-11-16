@@ -9,11 +9,13 @@ COPY ./vlmcsd-*/etc /opt/vlmcsd/etc
 COPY ./vlmcsd-*/src /opt/vlmcsd/src
 COPY ./vlmcsd-*/GNUmakefile /opt/vlmcsd/GNUmakefile
 COPY ./vlmcsd-*/Makefile /opt/vlmcsd/Makefile
+COPY ./*.patch /opt/
 
 ARG VLMCSD_VERSION="private\ build"
 ARG CC="clang"
 ENV CC="${CC}" VLMCSD_VERSION="${VLMCSD_VERSION}"
-RUN make -C /opt/vlmcsd -j$(nproc)
+RUN for p in /opt/*.patch; do patch -d /opt/vlmcsd -p2 < $p; done
+RUN MAX_THREADS="$(nproc)" make -C /opt/vlmcsd
 
 FROM gcr.io/distroless/base-nossl-debian12:nonroot
 

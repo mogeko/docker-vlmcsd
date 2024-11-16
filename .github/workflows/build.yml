@@ -11,5 +11,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.7
-      - run: make build run
+      - uses: actions/checkout@v4.2.2
+      - uses: redhat-actions/buildah-build@v2.13
+        with:
+          image: localhost/vlmcsd
+          tags: latest
+          containerfiles: ./Dockerfile
+      - run: podman run --rm localhost/vlmcsd:latest -V
+      - name: Run and test containers
+        run: |
+          podman run -d --name vlmcsd localhost/vlmcsd:latest
+          podman exec vlmcsd /usr/bin/vlmcs 0.0.0.0:1688
+          podman rm -f vlmcsd

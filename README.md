@@ -2,7 +2,7 @@
 
 [![ci_icon]][ci_link] [![docker_pulls]][docker_link] [![image_size]][docker_link]
 
-A rootless container running [vlmcsd](https://www.upload.ee/files/11363704/vlmcsd-1113-2020-03-28-Hotbird64.7z.html).
+A rootless container running [vlmcsd](https://cdn.jsdelivr.net/gh/mogeko/docker-vlmcsd@master/vlmcsd-1113/man/vlmcsd.8.pdf).
 
 **Since March 2023, vlmcsd images has been upgraded to a `rootless` container, it based on ["Distroless" image](https://github.com/GoogleContainerTools/distroless) and uses [Buildah](https://buildah.io) as a container compilation engine.** [Why do we use them?](#about-distroless-images-and-buildah).
 

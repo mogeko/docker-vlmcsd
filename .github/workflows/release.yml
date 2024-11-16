@@ -59,9 +59,10 @@ jobs:
 
   man-page:
     runs-on: ubuntu-latest
+    if: ${{ github.ref_name == 'master' }}
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}/vlmcsd.8.pdf
+      url: ${{ steps.deployment.outputs.page_url }}
     concurrency:
       group: "pages"
       cancel-in-progress: false
@@ -73,9 +74,12 @@ jobs:
       - uses: actions/checkout@v4.2.2
       - run: sudo apt-get update && sudo apt-get -y install groff
       - run: make -C ./vlmcsd-* pdfdocs htmldocs
+      - uses: docker://pandoc/core:3.5.0
+        with:
+          args: --from=markdown --output=index.html README.md
       - run: |
           install -d ./_site && install -t ./_site \
-              ./vlmcsd-*/man/vlmcs*.{pdf,html} ./LICENSE ./README.md
+              ./vlmcsd-*/man/vlmcs*.{pdf,html} ./LICENSE ./index.html
           ls -l ./_site
       - uses: actions/configure-pages@v5.0.0
       - uses: actions/upload-pages-artifact@v3.0.1

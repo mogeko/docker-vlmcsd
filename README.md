@@ -1,8 +1,10 @@
 # docker-vlmcsd
 
-[![ci_icon]][ci_link] [![docker_pulls]][docker_link] [![image_size]][docker_link]
+[![Build](https://github.com/mogeko/docker-vlmcsd/actions/workflows/build.yml/badge.svg)](https://github.com/mogeko/docker-vlmcsd/actions/workflows/build.yml)
+[![Docker Pulls](https://img.shields.io/docker/pulls/mogeko/vlmcsd?logo=docker)](https://hub.docker.com/r/mogeko/vlmcsd)
+[![Docker Image Size](https://img.shields.io/docker/image-size/mogeko/vlmcsd?logo=docker)](https://hub.docker.com/r/mogeko/vlmcsd)
 
-A rootless container running [vlmcsd](https://cdn.jsdelivr.net/gh/mogeko/docker-vlmcsd@master/vlmcsd-1113/man/vlmcsd.8.pdf).
+A rootless container running [vlmcsd](https://mogeko.github.io/docker-vlmcsd/vlmcsd.8.pdf).
 
 **Since March 2023, vlmcsd images has been upgraded to a `rootless` container, it based on ["Distroless" image](https://github.com/GoogleContainerTools/distroless) and uses [Buildah](https://buildah.io) as a container compilation engine.** [Why do we use them?](#about-distroless-images-and-buildah).
 
@@ -20,7 +22,7 @@ Run with docker cli:
 docker run -d --name vlmcsd -p 1688:1688 --restart unless-stopped ghcr.io/mogeko/vlmcsd:latest
 ```
 
-Run with [docker-compose]:
+Run with [docker-compose](https://docs.docker.com/compose):
 
 ```yml
 ---
@@ -64,17 +66,4 @@ As for [Buildah](https://buildah.io). It is a container mirror compilation engin
 
 ## License
 
-The code in this project is released under the [MIT License][license].
-
-<!-- badge -->
-
-[ci_icon]: https://github.com/mogeko/docker-vlmcsd/actions/workflows/build.yml/badge.svg
-[ci_link]: https://github.com/mogeko/docker-vlmcsd/actions/workflows/build.yml
-[docker_pulls]: https://img.shields.io/docker/pulls/mogeko/vlmcsd?logo=docker
-[image_size]: https://img.shields.io/docker/image-size/mogeko/vlmcsd?logo=docker
-[docker_link]: https://hub.docker.com/r/mogeko/vlmcsd
-
-<!-- links -->
-
-[docker-compose]: https://docs.docker.com/compose
-[license]: https://github.com/mogeko/docker-vlmcsd/blob/master/LICENSE
+The code in this project is released under the [MIT License](./LICENSE).

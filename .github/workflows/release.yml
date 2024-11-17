@@ -10,8 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      packages: write
+      id-token: write
       contents: read
+      attestations: write
+      packages: write
     steps:
       - uses: actions/checkout@v4.2.2
       - name: Log in to Docker Hub
@@ -35,8 +37,8 @@ jobs:
             ghcr.io/${{ github.actor }}/vlmcsd
           tags: |
             type=edge,branch=master,enable={{is_default_branch}}
-            type=ref,event=tag
-            type=sha,prefix=sha-,format=short
+            type=ref,event=tag,enable=true
+            type=sha,prefix=sha-,format=short,enable=true
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3.2.0
         with:
@@ -52,11 +54,18 @@ jobs:
           build-args: |
             VLMCSD_VERSION=${{ github.ref_name }}
           layers: false
-      - name: Push to Container registry
+      - name: Push to container registry
         uses: redhat-actions/push-to-registry@v2.8
+        id: deploy
         with:
           image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v1.4.4
+        with:
+          subject-name: ${{ steps.build-image.outputs.image }}
+          subject-digest: ${{ steps.deploy.outputs.digest }}
+          push-to-registry: true
 
   man-page:
     runs-on: ubuntu-latest

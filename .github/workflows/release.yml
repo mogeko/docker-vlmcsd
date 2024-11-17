@@ -60,10 +60,16 @@ jobs:
         with:
           image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
-      - name: Generate artifact attestation
+      - name: Generate artifact attestation for Docker Hub
         uses: actions/attest-build-provenance@v1.4.4
         with:
-          subject-name: ${{ steps.build-image.outputs.image }}
+          subject-name: docker.io/${{ secrets.DOCKER_USERNAME }}/vlmcsd
+          subject-digest: ${{ steps.deploy.outputs.digest }}
+          push-to-registry: true
+      - name: Generate artifact attestation for GitHub Container Registry
+        uses: actions/attest-build-provenance@v1.4.4
+        with:
+          subject-name: ghcr.io/${{ github.actor }}/vlmcsd
           subject-digest: ${{ steps.deploy.outputs.digest }}
           push-to-registry: true
 

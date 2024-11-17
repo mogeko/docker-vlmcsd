@@ -1,0 +1,30 @@
+diff --git a/vlmcsd-1113/src/vlmcs.c b/vlmcsd-1113/src/vlmcs.c
+index e3b6cb7..d656348 100644
+--- a/vlmcsd-1113/src/vlmcs.c
++++ b/vlmcsd-1113/src/vlmcs.c
+@@ -236,7 +236,7 @@ __noreturn static void showProducts(PRINTFUNC p)
+ {
+ 	int cols = getLineWidth();
+ 	int itemsPerLine;
+-	uint8_t i;
++	uint16_t i;
+ 	int32_t index;
+ 
+ 
+@@ -253,14 +253,14 @@ __noreturn static void showProducts(PRINTFUNC p)
+ 
+ 	itemsPerLine = cols / (longestString + 10);
+ 	if (!itemsPerLine) itemsPerLine = 1;
+-	uint8_t lines = items / itemsPerLine;
++	uint16_t lines = items / itemsPerLine;
+ 	if (items % itemsPerLine) lines++;
+ 
+ 	for (i = 0; i < lines; i++)
+ 	{
+ 		for (k = 0; k < itemsPerLine; k++)
+ 		{
+-			uint8_t j;
++			uint16_t j;
+ 			index = k * lines + i;
+ 
+ 			if (index >= items) break;

@@ -51,7 +51,7 @@ jobs:
           containerfiles: ./Dockerfile
           build-args: |
             VLMCSD_VERSION=${{ github.ref_name }}
-          layers: false
+          extra-args: --squash
       - name: Push to Container registry
         uses: redhat-actions/push-to-registry@v2.8
         with:

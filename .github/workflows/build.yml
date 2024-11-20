@@ -16,6 +16,7 @@ jobs:
         with:
           containerfiles: ./Dockerfile
           image: localhost/vlmcsd
+          extra-args: --squash
       - run: podman run --rm localhost/vlmcsd:latest -V
       - name: Run and test containers
         run: |

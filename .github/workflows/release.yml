@@ -6,6 +6,10 @@ on:
     tags: ["*"]
   workflow_dispatch:
 
+env:
+  DOCS_URL: https://mogeko.github.io/docker-vlmcsd/vlmcsd.8.pdf
+  IMAGE: vlmcsd
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,12 +35,16 @@ jobs:
         uses: docker/metadata-action@v5.5.1
         with:
           images: |
-            docker.io/${{ secrets.DOCKER_USERNAME }}/vlmcsd
-            ghcr.io/${{ github.actor }}/vlmcsd
+            docker.io/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE }}
+            ghcr.io/${{ github.actor }}/${{ env.IMAGE }}
           tags: |
             type=edge,branch=master,enable={{is_default_branch}}
-            type=ref,event=tag
-            type=sha,prefix=sha-,format=short
+            type=ref,event=tag,enable=true
+            type=sha,prefix=sha-,format=short,enable=true
+          labels: |
+            org.opencontainers.image.documentation=${{ env.DOCS_URL }}
+            org.opencontainers.image.title=${{ env.IMAGE }}
+            org.opencontainers.image.vendor=${{ github.actor }}
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3.2.0
         with:

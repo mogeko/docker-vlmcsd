@@ -19,7 +19,7 @@ RUN MAX_THREADS="$(nproc)" make -C /opt/vlmcsd/
 FROM gcr.io/distroless/base-nossl-debian12:nonroot
 
 LABEL org.opencontainers.image.description="A rootless container running vlmcsd"
-LABEL org.opencontainers.image.author="Zheng Junyi <zhengjunyi@live.comn>"
+LABEL org.opencontainers.image.authors="Zheng Junyi <zhengjunyi@live.comn>"
 LABEL org.opencontainers.image.licenses="MIT"
 
 COPY --from=builder /opt/vlmcsd/bin/vlmcsd /usr/bin/vlmcsd

@@ -16,9 +16,14 @@ jobs:
         with:
           containerfiles: ./Dockerfile
           image: localhost/vlmcsd
+          extra-args: --squash
       - run: podman run --rm localhost/vlmcsd:latest -V
       - name: Run and test containers
         run: |
           podman run -d --name vlmcsd localhost/vlmcsd:latest
           podman exec vlmcsd /usr/bin/vlmcs 0.0.0.0:1688
           podman rm -f vlmcsd
+      - run: podman save localhost/vlmcsd:latest > vlmcsd.tar
+      - uses: actions/upload-artifact@v4.4.3
+        with:
+          path: ./vlmcsd.tar

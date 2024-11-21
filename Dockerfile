@@ -1,12 +1,11 @@
 FROM docker.io/library/debian:12 AS builder
 
 ARG DEBIAN_FRONTEND="noninteractive"
-RUN apt-get update && apt-get -y install \
-        build-essential ca-certificates clang && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get --no-install-recommends -y install \
+        build-essential ca-certificates clang
 
-COPY ./vlmcsd-*/etc /opt/vlmcsd/etc
-COPY ./vlmcsd-*/src /opt/vlmcsd/src
+COPY ./vlmcsd-*/etc/* /opt/vlmcsd/etc/
+COPY ./vlmcsd-*/src/* /opt/vlmcsd/src/
 COPY ./vlmcsd-*/GNUmakefile /opt/vlmcsd/GNUmakefile
 COPY ./vlmcsd-*/Makefile /opt/vlmcsd/Makefile
 COPY ./*.patch /opt/
@@ -14,8 +13,8 @@ COPY ./*.patch /opt/
 ARG VLMCSD_VERSION="private\ build"
 ARG CC="clang"
 ENV CC="${CC}" VLMCSD_VERSION="${VLMCSD_VERSION}"
-RUN for p in /opt/*.patch; do patch -d /opt/vlmcsd -p2 < $p; done
-RUN MAX_THREADS="$(nproc)" make -C /opt/vlmcsd
+RUN for p in /opt/*.patch; do patch -d /opt/vlmcsd/ -N -p2 < $p; done
+RUN MAX_THREADS="$(nproc)" make -C /opt/vlmcsd/
 
 FROM gcr.io/distroless/base-nossl-debian12:nonroot
 

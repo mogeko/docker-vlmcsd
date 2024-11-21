@@ -6,12 +6,18 @@ on:
     tags: ["*"]
   workflow_dispatch:
 
+env:
+  DOCS_URL: https://mogeko.github.io/docker-vlmcsd/vlmcsd.8.pdf
+  IMAGE_NAME: vlmcsd
+
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      packages: write
+      id-token: write
       contents: read
+      attestations: write
+      packages: write
     steps:
       - uses: actions/checkout@v4.2.2
       - name: Log in to Docker Hub
@@ -31,12 +37,16 @@ jobs:
         uses: docker/metadata-action@v5.5.1
         with:
           images: |
-            docker.io/${{ secrets.DOCKER_USERNAME }}/vlmcsd
-            ghcr.io/${{ github.actor }}/vlmcsd
+            docker.io/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
+            ghcr.io/${{ github.actor }}/${{ env.IMAGE_NAME }}
           tags: |
             type=edge,branch=master,enable={{is_default_branch}}
-            type=ref,event=tag
-            type=sha,prefix=sha-,format=short
+            type=ref,event=tag,enable=true
+            type=sha,prefix=sha-,format=short,enable=true
+          labels: |
+            org.opencontainers.image.documentation=${{ env.DOCS_URL }}
+            org.opencontainers.image.title=${{ env.IMAGE_NAME }}
+            org.opencontainers.image.vendor=${{ github.actor }}
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3.2.0
         with:
@@ -54,9 +64,16 @@ jobs:
           extra-args: --squash
       - name: Push to Container registry
         uses: redhat-actions/push-to-registry@v2.8
+        id: deploy
         with:
           image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
+      - name: Generate artifact attestation to GitHub Container Registry
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ghcr.io/${{ github.actor }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.deploy.outputs.digest }}
+          push-to-registry: true
 
   man-page:
     runs-on: ubuntu-latest

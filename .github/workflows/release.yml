@@ -48,7 +48,7 @@ jobs:
             org.opencontainers.image.title=${{ env.IMAGE_NAME }}
             org.opencontainers.image.vendor=${{ github.actor }}
       - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3.2.0
+        uses: docker/setup-qemu-action@v3.4.0
         with:
           platforms: amd64,arm64
       - name: Build container with rootless by Buildah
@@ -69,7 +69,7 @@ jobs:
           image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
       - name: Generate artifact attestation to GitHub Container Registry
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-name: ghcr.io/${{ github.actor }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.deploy.outputs.digest }}

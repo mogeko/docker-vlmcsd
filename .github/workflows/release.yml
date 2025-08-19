@@ -19,7 +19,7 @@ jobs:
       attestations: write
       packages: write
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
       - name: Log in to Docker Hub
         uses: redhat-actions/podman-login@v1.7
         with:
@@ -34,7 +34,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v5.7.0
+        uses: docker/metadata-action@v5.8.0
         with:
           images: |
             docker.io/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
@@ -89,7 +89,7 @@ jobs:
       pages: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
       - run: sudo apt-get update && sudo apt-get -y install groff
       - run: make -C ./vlmcsd-* pdfdocs htmldocs
       - uses: docker://pandoc/core:3.5.0
@@ -100,7 +100,7 @@ jobs:
               ./vlmcsd-*/man/vlmcs*.{pdf,html} ./LICENSE ./index.html
           ls -l ./_site
       - uses: actions/configure-pages@v5.0.0
-      - uses: actions/upload-pages-artifact@v3.0.1
+      - uses: actions/upload-pages-artifact@v4.0.0
         with:
           path: "./_site"
       - name: Deploy to GitHub Pages
